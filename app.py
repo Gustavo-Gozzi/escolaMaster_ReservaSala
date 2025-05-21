@@ -14,3 +14,4 @@ with app.app_context():
 
 if __name__ == "__main__":
     app.run(port=8888, debug=True)
+    #lembrar que a porta pode ser 8080
