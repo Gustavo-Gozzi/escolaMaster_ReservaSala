@@ -10,17 +10,48 @@ def validar_turma(idTurma):
     return turma.status_code == 200
 
 
+def contar_alunos(idTurma):
+    alunos = requests.get(f"http://localhost:8000/alunos")
+    json_alunos = alunos.json()
+    
+    contador = 0
+    for aluno in json_alunos:
+        if aluno["turma_id"] == idTurma:
+            contador += 1
+
+    return contador
+
+
 @routes.route("/reserva", methods=["POST"])
 def reservarSala():
     dados = request.json
     idTurma = dados.get("turma_id")
+    idProfessor = dados.get("professor_id")
+    numeroSala = dados.get("numero_sala")
+    reservaData = dados.get("data")
+    capacidadeSala = dados.get("capacidade")
 
     if validar_turma(idTurma):
+        reservas = model_reserva.Reserva.query.all()
+        for reserva in reservas:
+            if reserva.turma_id == idTurma and reserva.data == reservaData:
+                return jsonify(f"A turma {idTurma} já possui reserva no dia {reservaData}."), 400
+            
+            if reserva.professor_id == idProfessor and reserva.data == reservaData:
+                return jsonify(f"Este professor já está com uma reserva no dia {reservaData}."), 400
+            
+            if reserva.numero_sala == numeroSala and reserva.data == reservaData:
+                return jsonify(f"A sala {numeroSala} já está ocupada no dia {reservaData}."), 400
+ 
+        contador = contar_alunos(idTurma)
+        if contador > capacidadeSala:
+            return jsonify(f"A quantidade de alunos excedeu a capacidade da Sala. Max: {capacidadeSala}. Excedentes: {contador - capacidadeSala}."), 400
+
         reserva = model_reserva.Reserva(
             turma_id=idTurma,
-            professor_id=dados.get("professor_id"),
+            professor_id=idProfessor,
             lab=dados.get("lab"),
-            numero_sala=dados.get("numero_sala"),
+            numero_sala=numeroSala,
             data=dados.get("data"),
             capacidade=dados.get("capacidade")
         )
@@ -35,12 +66,13 @@ def reservarSala():
 @routes.route("/reserva", methods=["GET"])
 def getReserva():
     reservas = model_reserva.Reserva.query.all()
-    print(reservas)
     lista = []
     for reserva in reservas:
         lista.append({
+            "id": reserva.id,
             "turma_id": reserva.turma_id,
             "professor_id": reserva.professor_id,
+            "numero_sala": reserva.numero_sala,
             "lab": reserva.lab,
             "data": reserva.data,
             "capacidade": reserva.capacidade
