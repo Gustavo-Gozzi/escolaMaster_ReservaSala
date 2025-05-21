@@ -79,3 +79,23 @@ def getReserva():
         })
 
     return jsonify(lista), 200
+
+@routes.route("/reserva/<int:idReserva>", methods=["GET"])
+def getReservaById(idReserva):
+    reserva = model_reserva.Reserva.query.get(idReserva)
+    try:
+        reservas = {
+            "id": reserva.id,
+            "turma_id": reserva.turma_id,
+            "professor_id": reserva.professor_id,
+            "numero_sala": reserva.numero_sala,
+            "lab": reserva.lab,
+            "data": reserva.data,
+            "capacidade": reserva.capacidade
+        }
+
+        return jsonify(reservas), 200
+    
+    except:
+        return jsonify("Reserva não encontrada :/"), 400
+
