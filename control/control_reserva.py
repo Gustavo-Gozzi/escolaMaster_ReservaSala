@@ -9,6 +9,9 @@ def validar_turma(idTurma):
     turma = requests.get(f"http://localhost:8000/turmas/{idTurma}")
     return turma.status_code == 200
 
+def validar_professor(idProfessor):
+    professor = requests.get(f"http://localhost:8000/turmas/{idProfessor}")
+    return professor.status_code == 200
 
 def contar_alunos(idTurma):
     alunos = requests.get(f"http://localhost:8000/alunos")
@@ -30,6 +33,10 @@ def reservarSala():
     numeroSala = dados.get("numero_sala")
     reservaData = dados.get("data")
     capacidadeSala = dados.get("capacidade")
+
+    if not validar_professor(idProfessor):
+        return jsonify("Professor não encontrado"), 200
+
 
     if validar_turma(idTurma):
         reservas = model_reserva.Reserva.query.all()
