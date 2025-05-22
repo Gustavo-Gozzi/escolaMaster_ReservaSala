@@ -87,6 +87,19 @@ def getReserva():
 
     return jsonify(lista), 200
 
+
+@routes.route("/reserva/<int:idReserva>", methods=["DELETE"])
+def deleteReserva(idReserva):
+    try:
+        reserva = model_reserva.Reserva.query.get(idReserva)
+        db.session.delete(reserva)
+        db.session.commit()
+        return {"msg": "Reserva deletada com sucesso!"}, 200
+      
+    except:
+        return  {"msg":"Professor não encontrado"}, 400
+
+
 @routes.route("/reserva/<int:idReserva>", methods=["GET"])
 def getReservaById(idReserva):
     reserva = model_reserva.Reserva.query.get(idReserva)
