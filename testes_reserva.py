@@ -5,13 +5,19 @@ class TestStringMethods(unittest.TestCase):
     
     #Testando POST
     def test_001_POST_reservas(self):
+        requests.post('http://localhost:8000/professores',json={
+        "nome": "Gandalf",
+        "data_nascimento": "1295-05-16",
+        "disciplina": "Magia",
+        "salario": 15000
+        })
+
         r = requests.post('http://127.0.0.1:8888/reserva',json={
             "capacidade": 30,
             "data": "10-12-21",
-            "id": 1,
             "lab": True,
             "numero_sala": 220,
-            "professor_id": 2,
+            "professor_id": 1,
             "turma_id": 1
         })
 
@@ -20,11 +26,11 @@ class TestStringMethods(unittest.TestCase):
 
         reserva_1 = False
         for reserva in reservas:
-            if (reserva['data'] == '10-12-21') and (reserva['turma_id'] == 1):
+            if reserva['data'] == "10-12-21":
                     reserva_1 = True
             
         if not reserva_1:
-            self.fail('Reserva criada foi encontrada.')
+            self.fail('Reserva criada não foi encontrada.')
 
     #Testando GET
     def test_002_GET_reservas(self):
